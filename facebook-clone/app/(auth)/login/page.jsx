@@ -1,11 +1,11 @@
 'use client'
 // app/(auth)/login/page.jsx
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const justRegistered = searchParams.get('registered')
@@ -92,7 +92,7 @@ export default function LoginPage() {
 
           <div className="mt-5 pt-5 border-t border-gray-200 text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/register" className="text-blue-600 font-semibold hover:underline">
                 Sign up
               </Link>
@@ -101,5 +101,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-100" />}>
+      <LoginForm />
+    </Suspense>
   )
 }

@@ -21,6 +21,7 @@ export default function HomePage() {
     setLoading(false)
 
     if (res.ok) {
+      if (replace) setHasMore(true)  // reset when doing a full refresh
       if (data.posts.length < 10) setHasMore(false)
       setPosts((prev) => replace ? data.posts : [...prev, ...data.posts])
     }
@@ -58,7 +59,7 @@ export default function HomePage() {
             {session?.user?.name}
           </Link>
           {[
-            { icon: '👥', label: 'Friends', href: '#' },
+            { icon: '👥', label: 'Friends', href: '/friends' },
             { icon: '📷', label: 'Photos', href: '#' },
             { icon: '🎬', label: 'Videos', href: '#' },
             { icon: '🔖', label: 'Saved', href: '#' },

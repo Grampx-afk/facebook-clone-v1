@@ -32,6 +32,22 @@ export async function POST(request) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
+    // Insert profile row so auth.js can fetch name/username on login
+    const { error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .insert({
+        id: data.user.id,
+        name,
+        email,
+        username,
+      })
+
+    if (profileError) {
+      // Rollback the auth user to keep data consistent
+      await supabaseAdmin.auth.admin.deleteUser(data.user.id)
+      return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 })
+    }
+
     return NextResponse.json({ message: 'Account created!', userId: data.user.id }, { status: 201 })
   } catch (err) {
     console.error('Register error:', err)

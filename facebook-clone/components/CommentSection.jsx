@@ -5,24 +5,23 @@ import { useSession } from 'next-auth/react'
 import Avatar from './Avatar'
 import { formatDistanceToNow } from 'date-fns'
 
-export default function CommentSection({ postId, initialCount }) {
+export default function CommentSection({ postId, initialCount, onCommentAdded, onCommentDeleted }) {
   const { data: session } = useSession()
   const [comments, setComments] = useState([])
   const [loaded, setLoaded] = useState(false)
   const [text, setText] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  const loadComments = async () => {
-    const res = await fetch(`/api/posts/${postId}/comments`)
-    const data = await res.json()
-    if (res.ok) {
-      setComments(data.comments)
-      setLoaded(true)
-    }
-  }
-
   useEffect(() => {
-    loadComments()
+    const load = async () => {
+      const res = await fetch(`/api/posts/${postId}/comments`)
+      const data = await res.json()
+      if (res.ok) {
+        setComments(data.comments)
+        setLoaded(true)
+      }
+    }
+    load()
   }, [postId])
 
   const handleSubmit = async (e) => {
@@ -42,6 +41,7 @@ export default function CommentSection({ postId, initialCount }) {
     if (res.ok) {
       setComments((prev) => [...prev, data.comment])
       setText('')
+      onCommentAdded?.()
     }
   }
 
@@ -51,6 +51,7 @@ export default function CommentSection({ postId, initialCount }) {
     })
     if (res.ok) {
       setComments((prev) => prev.filter((c) => c.id !== commentId))
+      onCommentDeleted?.()
     }
   }
 

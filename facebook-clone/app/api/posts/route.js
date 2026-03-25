@@ -45,11 +45,11 @@ export async function POST(request) {
 
     const { content, image_url } = await request.json()
 
-    if (!content?.trim()) {
-      return NextResponse.json({ error: 'Post content is required' }, { status: 400 })
+    if (!content?.trim() && !image_url) {
+      return NextResponse.json({ error: 'Post must have content or an image' }, { status: 400 })
     }
 
-    if (content.length > 2000) {
+    if (content && content.length > 2000) {
       return NextResponse.json({ error: 'Post too long (max 2000 chars)' }, { status: 400 })
     }
 

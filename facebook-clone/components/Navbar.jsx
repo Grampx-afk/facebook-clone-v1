@@ -63,7 +63,7 @@ export default function Navbar() {
         {/* Right: avatar + logout */}
         <div className="flex items-center gap-2">
           <Link
-            href={`/profile/${session?.user?.id}`}
+            href={session?.user?.id ? `/profile/${session.user.id}` : '#'}
             className="flex items-center gap-2 hover:bg-gray-100 px-3 py-1.5 rounded-lg transition-colors"
           >
             <Avatar user={session?.user} size="sm" />

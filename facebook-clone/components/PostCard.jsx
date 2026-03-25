@@ -14,18 +14,19 @@ export default function PostCard({ post, onDelete }) {
   const [liked, setLiked] = useState(userLiked)
   const [likeCount, setLikeCount] = useState(post.likes?.length || 0)
   const [showComments, setShowComments] = useState(false)
+  const [commentCount, setCommentCount] = useState(post.comments?.length || 0)
   const [deleting, setDeleting] = useState(false)
 
   const handleLike = async () => {
-    // Optimistic update
-    setLiked((prev) => !prev)
-    setLikeCount((prev) => (liked ? prev - 1 : prev + 1))
+    const wasLiked = liked // capture before toggling
+    setLiked(!wasLiked)
+    setLikeCount((prev) => (wasLiked ? prev - 1 : prev + 1))
 
     const res = await fetch(`/api/posts/${post.id}/like`, { method: 'POST' })
     if (!res.ok) {
       // Revert on failure
-      setLiked((prev) => !prev)
-      setLikeCount((prev) => (liked ? prev + 1 : prev - 1))
+      setLiked(wasLiked)
+      setLikeCount((prev) => (wasLiked ? prev + 1 : prev - 1))
     }
   }
 
@@ -80,7 +81,7 @@ export default function PostCard({ post, onDelete }) {
       )}
 
       {/* Stats row */}
-      {(likeCount > 0 || post.comments?.length > 0) && (
+      {(likeCount > 0 || commentCount > 0) && (
         <div className="flex items-center justify-between px-4 py-2 text-xs text-gray-500 border-t border-gray-100">
           {likeCount > 0 && (
             <span className="flex items-center gap-1">
@@ -88,12 +89,12 @@ export default function PostCard({ post, onDelete }) {
               {likeCount}
             </span>
           )}
-          {post.comments?.length > 0 && (
+          {commentCount > 0 && (
             <button
               onClick={() => setShowComments((prev) => !prev)}
               className="ml-auto hover:underline"
             >
-              {post.comments.length} comment{post.comments.length !== 1 ? 's' : ''}
+              {commentCount} comment{commentCount !== 1 ? 's' : ''}
             </button>
           )}
         </div>
@@ -107,7 +108,7 @@ export default function PostCard({ post, onDelete }) {
             liked ? 'text-blue-600' : 'text-gray-500'
           }`}
         >
-          {liked ? '👍' : '👍'} <span>{liked ? 'Liked' : 'Like'}</span>
+          {liked ? '👍' : '🤍'} <span>{liked ? 'Liked' : 'Like'}</span>
         </button>
 
         <button
@@ -124,7 +125,12 @@ export default function PostCard({ post, onDelete }) {
 
       {/* Comments */}
       {showComments && (
-        <CommentSection postId={post.id} initialCount={post.comments?.length} />
+        <CommentSection
+          postId={post.id}
+          initialCount={commentCount}
+          onCommentAdded={() => setCommentCount((prev) => prev + 1)}
+          onCommentDeleted={() => setCommentCount((prev) => prev - 1)}
+        />
       )}
     </div>
   )
